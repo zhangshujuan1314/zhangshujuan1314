@@ -1,6 +1,6 @@
 # Repository Maintenance Handoff
 
-Last updated: 2026-08-07 23:24 CST (UTC+8)
+Last updated: 2026-08-08 06:47 CST (UTC+8)
 
 This file is the current handoff for maintenance across the `zhangshujuan1314/*` repositories. It records only work verified from repository state, pull requests, issues, CI, or explicit external confirmation. Historical actions and failed experiments belong in `MAINTENANCE_LOG.md`.
 
@@ -14,26 +14,73 @@ This file is the current handoff for maintenance across the `zhangshujuan1314/*`
 6. Secrets never belong in repository files, encrypted or otherwise, when the decryption key is also in the repository.
 7. Keep Issues for unresolved work; close only when the actual dependency/action is complete.
 8. `MAINTENANCE_LOG.md` is append-only. If a previous status becomes obsolete, append a correction instead of rewriting history.
-9. Temporary maintenance workflows must stay off `main` and be removed after evidence collection.
-10. When concurrent maintenance lands first, re-read `main`; close superseded PRs instead of overwriting newer work.
+9. Temporary maintenance workflows must stay off default branches and be removed after evidence collection.
+10. When concurrent maintenance lands first, re-read the default branch; close superseded PRs instead of overwriting newer work.
 
-## Current priority queue
+## Current priority queue — manual/external actions only
 
-### P0 / P1 external actions
+### P0 — youdian-shouhuo credential rotation
 
-- **youdian-shouhuo** — repository-side secret cleanup is complete, but old JWT/API/MongoDB/SMTP/etc. credentials must still be revoked/rotated at their providers. Security Issue #1 must remain open until external rotation is verified.
-- **books** — review redistribution rights for committed commercial-book PDFs. Do not delete files or rewrite Git history until redistribution authorization is known.
+Repository-side secret cleanup is complete, but every credential that may have existed in the previously committed encrypted env files must be treated as potentially exposed and rotated/revoked at its provider.
 
-### Runtime verification
+Security Issue #1 remains open until external rotation is explicitly confirmed.
 
-- **frontier-radar** — workflow commit-step fix is merged, but still needs the first scheduled run that *starts after the fix* for runtime verification. Ignore pre-fix scheduled failures.
+Required categories include:
+- `JWT_SECRET`;
+- DeepSeek / MiMo or other AI provider API keys;
+- MongoDB user/password/connection credentials;
+- SMTP credentials;
+- any other webhook, object-storage, service token or secret previously stored in either env file.
 
-### Publication / portfolio work
+Do not paste replacement values into GitHub Issues, repository files, or chat. Store them only in the deployment platform / GitHub Actions / provider secret store.
 
-- **cc-cockpit** — engineering/install baseline is already CI-verified on Windows, including remote `npx github:...` startup and localhost-only behavior. Issue #1 remains open only for **real sanitized screenshots/GIF/video**; do not fabricate demo assets from mocks or private session data.
-- **pxpipe** — attribution is now explicit in README: the repo is identified as an experimental derivative of `teamchong/pxpipe` (MIT), upstream remains the official project, and local experimental increments are enumerated. No further attribution rewrite is currently required.
+### P0/P1 — books redistribution-rights decision
+
+The public `books` repository still contains commercial-book PDFs, including large files and filenames that strongly suggest downloaded commercial editions. Repository Issues are disabled.
+
+Manual decision required:
+- retain only material with clear redistribution permission, public-domain status, or ownership/license evidence that permits public redistribution;
+- treat purchased copies, downloaded commercial editions, or unclear rights as **not authorized for public redistribution**;
+- once the decision is provided, repository files can be removed automatically. Git-history purge is a separate destructive operation and should be decided after current-tree cleanup.
+
+### P1 — frontier-radar DeepSeek Actions secret
+
+The original ingest `Commit data` failure is fixed and verified. Scheduled run #260, started after the workflow fix, completed successfully including pipeline, frontend build, data commit and push.
+
+That same run exposed a separate provider-side problem: DeepSeek enrichment returned HTTP 401 for the current Actions secret. Issue #3 tracks only this credential problem.
+
+Manual action:
+1. create/obtain a valid DeepSeek key at the provider;
+2. update repository Actions secret `DEEPSEEK_API_KEY`;
+3. revoke the old/invalid provider key;
+4. rerun ingest or wait for the next scheduled run;
+5. verify no DeepSeek 401 remains.
+
+Do not send the key through chat or an Issue.
 
 ## Verified engineering baselines
+
+### frontier-radar — original runtime issue closed
+
+- Workflow commit-step fix is merged.
+- Post-fix scheduled run #260 completed successfully; `Commit data` and push succeeded.
+- The successful run revealed web dependency audit debt; this was handled separately.
+- Isolated remediation first proved a non-breaking audit fix was insufficient, then coordinated upgrades were tested.
+- `react-router-dom` upgraded to 7.18.2, Vite to 8.2.1 and `@vitejs/plugin-react` to 6.0.5.
+- Clean `npm ci`, TypeScript/Vite production build and `npm audit --audit-level=high` passed before merge.
+- PR #2 merged as `dbec749752c02a440554617b98d9a4a9e1df383c`.
+- Remaining blocker is only the external DeepSeek credential tracked in Issue #3; it is not the original `Commit data` bug.
+
+### cc-cockpit — engineering + publication baseline complete
+
+- Windows CI verifies locked install, adversarial core suites, package contents, localhost dashboard startup and LAN rejection.
+- Clean `npx github:zhangshujuan1314/cc-cockpit` startup from an empty Windows directory is CI-verified.
+- Four PNG screenshots and one short WebM are now published.
+- Publication assets were generated by the real `core/server.js` runtime and production JSONL parser using committed deterministic sanitized fixture `demo/sanitized-session.jsonl`; no private Claude Code session was used.
+- README explicitly discloses this demo provenance.
+- Temporary screenshot-generation workflow was removed before PR creation.
+- PR #4 normal CI passed both Windows runtime/security checks and clean GitHub npx install; merged as `b567e6b06aed1d51de4ff7f19db2fa9d2616cc8b`.
+- Publication Issue #1 is closed as completed.
 
 ### cyber-flower — security/reliability baseline complete
 
@@ -43,14 +90,13 @@ This file is the current handoff for maintenance across the `zhangshujuan1314/*`
 - Current CI requires production high/critical audit, build, **6/6 unit tests**, **5/5 E2E tests** with MongoDB, and Docker build.
 - Coordinated Nest 10 -> 11 migration merged in PR #14 (`0ce4ae440e46e55f778227a75bbd5d2d77a86786`).
 - Final migration candidate verified **0 npm vulnerabilities**, including production **0 high / 0 critical**.
-- Permanent CI regression gate merged in PR #15 (`f362c11fc2115e1519a1ac605797f4c1fb4906cb`): `npm audit --omit=dev --audit-level=high` now blocks future production high/critical dependency regressions.
+- Permanent CI regression gate merged in PR #15 (`f362c11fc2115e1519a1ac605797f4c1fb4906cb`).
 - Dependency-security Issue #2 is closed as completed.
-- Remaining Node 20 warning concerns GitHub Action runtime/tooling versions, not the application production dependency graph; track separately if upgraded.
 
 ### mybrain
 
 - GitHub pytest CI established.
-- Clean runner verified **131 tests passed** at setup time after declaring `pytest-asyncio` explicitly.
+- Clean runner verified **131 tests passed** after declaring `pytest-asyncio` explicitly.
 
 ### quanttrader
 
@@ -60,42 +106,36 @@ This file is the current handoff for maintenance across the `zhangshujuan1314/*`
 
 ### roundtable
 
-- Real GitHub Release `v1.0.0` exists; Windows ZIP is a Release asset and no longer lives in the source tree.
+- Real GitHub Release `v1.0.0` exists; Windows ZIP is a Release asset and no longer lives in source.
 - Normal CI is established on Python **3.10 and 3.12**; existing mocked suite verified **16 tests passed**.
 - Temporary release-bootstrap workflow was removed after evidence collection.
 
 ## Repository governance completed
 
-- **cineweave-studio** — eight phase/status reports moved from repository root to `docs/archive/status-reports/` as unchanged historical snapshots.
+- **cineweave-studio** — phase/status reports moved from root to `docs/archive/status-reports/` as historical snapshots.
 - **ai-zhihang** — generated ZIP artifacts removed from source and ignored going forward.
 - **nuanxingzhe-ai** — marked Legacy; maintained successor is `nuanxingzhe-ai-next`.
-- **landscape-scroll** — marked **Completed / Frozen showcase**; retained as a Canvas interaction/visual work rather than an active product.
-- **life-timeline** — marked **Completed / Frozen**; retained as a single-file local-first interaction/information-visualization work.
-- **shiguang-jiaonang** — marked **Completed concept prototype / Frozen** and explicitly documents that current AI organization is a front-end simulation, not a real LLM/backend capability.
-- **profile repository** — focused profile README established so flagship work is not presented at equal weight with every experiment.
+- **landscape-scroll** — marked **Completed / Frozen showcase**.
+- **life-timeline** — marked **Completed / Frozen**.
+- **shiguang-jiaonang** — marked **Completed concept prototype / Frozen** and AI behavior is explicitly described as front-end simulation rather than a live LLM/backend capability.
+- **pxpipe** — upstream/derivative attribution is explicit; upstream remains the official project and local experimental increments are identified.
+- **profile repository** — focused Profile README established so flagship work is not presented at equal weight with every experiment.
 
 ## Active work
 
-1. **frontier-radar** — verify first post-fix scheduled ingest and record exact run ID/conclusion.
-2. **youdian-shouhuo** — external provider-side credential rotation/revocation.
-3. **books** — redistribution-rights decision before destructive cleanup.
-4. **cc-cockpit** — capture real sanitized publication assets; Issue #1 contains the privacy checklist and verified runtime baseline.
+There are no remaining repository-internal cleanup tasks from the current priority batch that can be completed safely without external information or credentials.
 
-## Recommended next actions
-
-1. Check `frontier-radar` once a scheduled run has actually started after the workflow fix.
-2. Complete `youdian-shouhuo` credential rotation; only then decide whether encrypted blobs should be purged from Git history.
-3. Determine `books` redistribution authorization and either retain authorized materials or remove unauthorized PDFs/history.
-4. Capture `cc-cockpit` screenshots/GIF from a real but sanitized local session; keep local paths, prompts, usernames, project names, tokens, and API keys out of assets.
-5. After P0/P1 external work is resolved, continue lower-risk portfolio cleanup/archiving rather than opening new overlapping projects.
+Waiting on manual/external actions:
+1. `youdian-shouhuo` provider-side credential rotation/revocation;
+2. `books` redistribution-rights decision;
+3. `frontier-radar` replacement of invalid `DEEPSEEK_API_KEY`.
 
 ## Handoff checklist
 
-Before ending a maintenance session:
-
-- Update this file if priority/status changed.
-- Append actions and verification evidence to `MAINTENANCE_LOG.md`.
-- Keep unresolved external actions open as Issues.
-- Do not merge security/build PRs with pending or failed CI unless the repository has no executable CI and that limitation is explicitly recorded.
-- Remove temporary maintenance workflows after their evidence has been collected.
-- Re-read default branches before writes when concurrent maintenance is active.
+When a manual action is completed:
+- report only completion/status, never secret values;
+- re-read the relevant default branch and Issue before writing;
+- verify external credential changes through a fresh workflow/app run where possible;
+- close Issues only after actual external verification;
+- append evidence to `MAINTENANCE_LOG.md`;
+- for destructive history rewrites, make a separate explicit decision after current-tree cleanup.
