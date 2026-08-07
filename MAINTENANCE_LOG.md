@@ -26,6 +26,16 @@ Format: `timestamp | repository | action | verification | status / next action`.
 - **books** — Identified redistribution/licensing risk for committed commercial-book PDFs. Repository Issues are disabled. **Status:** no destructive action taken; rights review required first.
 - **global profile** — Added a focused GitHub Profile README to surface flagship work instead of presenting all repositories at equal weight. **Status:** completed.
 
+### Later corrections and second-round work
+
+- **22:20-22:30 CST | cyber-flower** — **Correction to the earlier duplicate-tree entry:** PR #6 completed full CI and was merged. **Verification:** maintained root tree passed build, **6/6 unit tests**, **5/5 E2E tests** with MongoDB, and Docker build. **Status:** stale nested `cyber-flower/` full-project copy removed from main.
+- **22:25 CST | cyber-flower** — Concurrent maintenance landed the non-mutating TypeScript ESLint toolchain on `main` first. An independently prepared PR #11 was closed unmerged as superseded rather than downgrading/duplicating the newer implementation. **Verification:** landed main CI succeeded. **Status:** concurrent-write conflict handled without overwriting newer work.
+- **22:40-22:44 CST | cyber-flower** — Removed all **12 existing lint warnings** with minimal dead-code/unused-binding cleanup and tightened CI from `--max-warnings=20` to **`--max-warnings=0`**. **Verification:** PR #13 CI run #25 passed zero-warning lint, build, unit, E2E, and Docker. **Status:** PR #13 merged as commit `38ef9c2ca4404ddf877591242e51518a394a347a`.
+- **22:41-22:44 CST | cyber-flower** — Ran a temporary branch-only npm audit workflow and removed that workflow after evidence collection. **Verification:** full tree **26 vulnerabilities: 3 low, 15 moderate, 8 high, 0 critical**; production-only tree **13: 9 moderate, 4 high, 0 critical**. Production highs are concentrated in `@nestjs/platform-express -> multer` and `@nestjs/swagger -> js-yaml/lodash`; development-only highs are in the Nest CLI toolchain. **Status:** Issue #2 reopened and updated; next step is non-breaking `npm audit fix`, then coordinated major upgrade only if required.
+- **22:26 CST | roundtable** — Created real GitHub Release `v1.0.0` from the existing source-tree Windows package. **Verification:** release workflow succeeded; Release asset `Roundtable-v1.0.0-Windows.zip` published at **18,104 bytes**, preserving the existing package content. **Status:** release published.
+- **22:28 CST | roundtable** — Updated README to use the Release download, removed `Roundtable-v1.0.0-Windows.zip` from source, and relied on existing ignore rules to prevent reintroduction. **Verification:** PR #3 reviewed as README change + binary deletion only and merged. **Status:** binary migration complete.
+- **22:45 CST | global** — Refreshed `MAINTENANCE_HANDOFF.md` to reflect verified current state and narrowed active work to unresolved P0/P1 items. **Status:** handoff current as of this entry.
+
 ---
 
 ## Logging policy
