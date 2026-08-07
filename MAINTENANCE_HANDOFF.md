@@ -1,6 +1,6 @@
 # Repository Maintenance Handoff
 
-Last updated: 2026-08-07 23:20 CST (UTC+8)
+Last updated: 2026-08-07 23:24 CST (UTC+8)
 
 This file is the current handoff for maintenance across the `zhangshujuan1314/*` repositories. It records only work verified from repository state, pull requests, issues, CI, or explicit external confirmation. Historical actions and failed experiments belong in `MAINTENANCE_LOG.md`.
 
@@ -40,7 +40,7 @@ This file is the current handoff for maintenance across the `zhangshujuan1314/*`
 - Public/default JWT fallback removed; production secret configuration fails closed.
 - Stale nested full-project copy removed after full CI verification.
 - Non-mutating TypeScript ESLint restored and tightened to **zero warnings**.
-- Current CI requires build, **6/6 unit tests**, **5/5 E2E tests** with MongoDB, and Docker build.
+- Current CI requires production high/critical audit, build, **6/6 unit tests**, **5/5 E2E tests** with MongoDB, and Docker build.
 - Coordinated Nest 10 -> 11 migration merged in PR #14 (`0ce4ae440e46e55f778227a75bbd5d2d77a86786`).
 - Final migration candidate verified **0 npm vulnerabilities**, including production **0 high / 0 critical**.
 - Permanent CI regression gate merged in PR #15 (`f362c11fc2115e1519a1ac605797f4c1fb4906cb`): `npm audit --omit=dev --audit-level=high` now blocks future production high/critical dependency regressions.
@@ -69,6 +69,9 @@ This file is the current handoff for maintenance across the `zhangshujuan1314/*`
 - **cineweave-studio** — eight phase/status reports moved from repository root to `docs/archive/status-reports/` as unchanged historical snapshots.
 - **ai-zhihang** — generated ZIP artifacts removed from source and ignored going forward.
 - **nuanxingzhe-ai** — marked Legacy; maintained successor is `nuanxingzhe-ai-next`.
+- **landscape-scroll** — marked **Completed / Frozen showcase**; retained as a Canvas interaction/visual work rather than an active product.
+- **life-timeline** — marked **Completed / Frozen**; retained as a single-file local-first interaction/information-visualization work.
+- **shiguang-jiaonang** — marked **Completed concept prototype / Frozen** and explicitly documents that current AI organization is a front-end simulation, not a real LLM/backend capability.
 - **profile repository** — focused profile README established so flagship work is not presented at equal weight with every experiment.
 
 ## Active work
