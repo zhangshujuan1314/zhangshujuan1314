@@ -1,6 +1,6 @@
 # Repository Maintenance Handoff
 
-Last updated: 2026-08-07 22:12 CST (UTC+8)
+Last updated: 2026-08-07 22:45 CST (UTC+8)
 
 This file is the current handoff for maintenance across the `zhangshujuan1314/*` repositories. It records only work that has been verified from repository state, pull requests, issues, or CI. Historical actions belong in `MAINTENANCE_LOG.md`.
 
@@ -13,27 +13,32 @@ This file is the current handoff for maintenance across the `zhangshujuan1314/*`
 5. Generated binaries/ZIPs belong in Releases or CI artifacts, not source history.
 6. Secrets never belong in repository files, encrypted or otherwise, when the decryption key is also in the repository.
 7. Keep Issues for unresolved work; close only when the actual external dependency is complete.
-8. `MAINTENANCE_LOG.md` is append-only.
+8. `MAINTENANCE_LOG.md` is append-only. If a previous status becomes obsolete, append a correction rather than rewriting history.
+9. Temporary maintenance workflows must stay off `main` and be removed from their branch after evidence is collected.
+10. When concurrent maintenance lands first, re-read `main`; close superseded PRs instead of overwriting newer work.
 
 ## Current priority queue
 
-### P0 / P1
+### P0 / P1 external actions
 
-- **youdian-shouhuo** — credential rotation remains externally actionable. Repository-side encrypted env files/decrypt helper were removed, but old JWT/API/MongoDB/SMTP/etc. credentials must be revoked/rotated at their providers. Keep the rotation issue open until that is verified.
-- **cyber-flower** — public JWT fallback has been removed and the production configuration now fails closed. Continue with duplicate nested repository cleanup, then restore ESLint/E2E gates and reduce dependency audit debt.
-- **books** — review redistribution rights for committed commercial-book PDFs. Do not rewrite history or delete files until redistribution authorization is known.
+- **youdian-shouhuo** — repository-side secret cleanup is complete, but old JWT/API/MongoDB/SMTP/etc. credentials must still be revoked/rotated at their providers. Security Issue #1 must remain open until external rotation is verified.
+- **books** — review redistribution rights for committed commercial-book PDFs. Do not delete files or rewrite Git history until redistribution authorization is known.
 
-### Reliability
+### P1 engineering
 
-- **frontier-radar** — workflow commit-step fix is merged. Verify a scheduled run that starts after the fix; do not use pre-fix scheduled failures as evidence against the fix.
-- **cyber-flower** — unit-test gate is restored and verified. E2E and lint remain incomplete.
-- **mybrain** — CI is established; clean runner verified 131 tests passing at time of setup.
+- **cyber-flower** — no critical npm audit findings remain. Current clean audit: full tree **26 vulnerabilities (3 low, 15 moderate, 8 high, 0 critical)**; production-only **13 (9 moderate, 4 high, 0 critical)**. Production high chains are `@nestjs/platform-express -> multer` and `@nestjs/swagger -> js-yaml/lodash`. Issue #2 is open. First try a non-breaking `npm audit fix` on an isolated branch; if runtime highs remain, test a coordinated Nest 10 -> 11 migration rather than `--force` on main.
+- **frontier-radar** — workflow commit-step fix is merged, but still needs a scheduled run that starts after the fix for runtime verification. Ignore failures that started on the pre-fix commit.
+
+### Reliability baseline already established
+
+- **cyber-flower** — public JWT fallback removed; stale nested full-project copy removed; non-mutating ESLint restored; previous 12 warnings removed; CI now requires **zero warnings**; build, **6/6 unit tests**, **5/5 E2E tests**, and Docker build are verified green.
+- **mybrain** — CI is established; clean runner verified **131 tests passed** at setup time.
 - **quanttrader** — Argon2id password migration, production JWT-secret guard, Docker env corrections, and default-deny arbitrary strategy execution are merged and CI-verified. Custom Python execution must remain trusted-code-only until a real isolation boundary exists.
 
 ### Repository governance / presentation
 
-- **cineweave-studio** — phase/status reports moved from repository root to `docs/archive/status-reports/`; treat them as historical snapshots, not current release truth.
-- **roundtable** — source tree still contains `Roundtable-v1.0.0-Windows.zip`, while GitHub Releases was empty when checked. Create a real Release before removing the only downloadable package from source.
+- **cineweave-studio** — eight phase/status reports moved from repository root to `docs/archive/status-reports/` as unchanged historical snapshots.
+- **roundtable** — **completed:** real GitHub Release `v1.0.0` exists; the existing Windows ZIP was uploaded as the Release asset, README now points to Releases, and the ZIP was removed from the source tree in merged PR #3.
 - **ai-zhihang** — generated ZIP artifacts removed from source and ignored going forward.
 - **nuanxingzhe-ai** — marked Legacy; maintained successor is `nuanxingzhe-ai-next`.
 - **pxpipe** — clarify upstream/original-project attribution before using it as an original flagship project.
@@ -43,17 +48,27 @@ This file is the current handoff for maintenance across the `zhangshujuan1314/*`
 
 ### cyber-flower
 
-- PR #6: remove stale nested `cyber-flower/` project copy. The branch is based on latest maintenance state and must pass CI before merge.
-- Issue #2: restore real lint + E2E gates and address dependency audit findings.
+- Issue #2: reduce remaining runtime dependency audit debt.
+- A branch-only dependency audit separated production from development findings and has been cleaned of its temporary workflow after evidence collection.
+- Next safe experiment: run non-breaking `npm audit fix` on an isolated branch, then require zero-warning lint + build + unit + E2E + Docker + production re-audit before merge.
+
+### frontier-radar
+
+- Verify the first scheduled ingest started after the workflow fix. Record the exact run ID/conclusion in `MAINTENANCE_LOG.md`.
+
+### external/manual
+
+- `youdian-shouhuo`: rotate/revoke provider-side credentials.
+- `books`: determine redistribution authorization before destructive cleanup.
 
 ## Recommended next actions
 
-1. Finish and merge `cyber-flower` duplicate-tree cleanup only after CI confirms the maintained root tree still builds/tests.
-2. Re-run dependency audit on the maintained `cyber-flower/server` after recent COS dependency cleanup; record exact remaining high/critical packages before changing major versions.
-3. Restore non-mutating ESLint configuration and then E2E with an explicit Mongo test service or isolated test module.
-4. Verify the next post-fix `frontier-radar` scheduled ingest.
-5. Create/verify a real `roundtable` GitHub Release, then remove the ZIP from source in a separate PR.
-6. Continue portfolio cleanup only after P0/P1 work is green.
+1. Apply and verify non-breaking npm audit remediation for `cyber-flower`; do not use `--force` on main.
+2. Re-audit `cyber-flower` production dependencies and decide whether a coordinated Nest 11 upgrade is justified.
+3. Verify the next post-fix `frontier-radar` scheduled ingest.
+4. Resolve `youdian-shouhuo` provider-side credential rotation and then decide whether Git history rewriting is warranted.
+5. Review `books` redistribution rights.
+6. Resume portfolio/presentation cleanup only after these P0/P1 items are either resolved or explicitly accepted/documented.
 
 ## Handoff checklist
 
@@ -63,3 +78,4 @@ Before ending a maintenance session:
 - Append actions and verification evidence to `MAINTENANCE_LOG.md`.
 - Keep unresolved external actions open as Issues.
 - Do not merge a security/build PR with pending or failed CI unless the repository has no executable CI and that limitation is explicitly recorded.
+- Remove temporary maintenance workflows after their evidence has been collected.
